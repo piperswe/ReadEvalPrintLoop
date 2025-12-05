@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		869B4B712EE2788300FF118A /* HighlightSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 869B4B702EE2788300FF118A /* HighlightSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		869B6C842EE254620088CB7E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				869B4B712EE2788300FF118A /* HighlightSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +130,7 @@
 			);
 			name = ReadEvalPrintLoop;
 			packageProductDependencies = (
+				869B4B702EE2788300FF118A /* HighlightSwift */,
 			);
 			productName = ReadEvalPrintLoop;
 			productReference = 869B6C722EE254610088CB7E /* ReadEvalPrintLoop.app */;
@@ -208,6 +214,9 @@
 			);
 			mainGroup = 869B6C692EE254610088CB7E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				869B4B6F2EE2788300FF118A /* XCRemoteSwiftPackageReference "highlightswift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 869B6C732EE254610088CB7E /* Products */;
 			projectDirPath = "";
@@ -285,7 +294,7 @@
 		869B6C972EE254620088CB7E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "interim-icon";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -328,7 +337,7 @@
 		869B6C982EE254620088CB7E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "interim-icon";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -620,6 +629,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		869B4B6F2EE2788300FF118A /* XCRemoteSwiftPackageReference "highlightswift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/appstefan/highlightswift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.9;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		869B4B702EE2788300FF118A /* HighlightSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 869B4B6F2EE2788300FF118A /* XCRemoteSwiftPackageReference "highlightswift" */;
+			productName = HighlightSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 869B6C6A2EE254610088CB7E /* Project object */;
 }

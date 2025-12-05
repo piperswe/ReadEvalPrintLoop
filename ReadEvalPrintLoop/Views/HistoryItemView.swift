@@ -1,0 +1,91 @@
+//
+//  SwiftUIView.swift
+//  ReadEvalPrintLoop
+//
+//  Created by Piper McCorkle on 12/4/25.
+//
+
+import SwiftUI
+import JavaScriptCore
+
+struct HistoryItemView: View {
+    var item: HistoryItem
+    var tools: JSTools
+    var addToCode: ((String) -> ())?
+    var latest: Bool = true
+    
+    var body: some View {
+        let body = HStack(alignment: .center) {
+            VStack(alignment: .leading) {
+                Text(sourceAttributedString)
+                    .font(.system(.body, design: .monospaced))
+                ForEach(item.logs) { log in
+                    HStack {
+                        switch log.level {
+                        case .log:
+                            Text("log:").foregroundStyle(.blue)
+                        case .warn:
+                            Text("warn:").foregroundStyle(.yellow)
+                        case .error:
+                            Text("error:").foregroundStyle(.red)
+                        }
+                        ForEach(log.message, id: \.hash) { message in
+                            JSValueView(value: message, tools: tools, logMessage: true)
+                        }
+                    }
+                }
+                if let exception = item.exception {
+                    Text(exception).foregroundColor(.red)
+                } else if let result = item.result {
+                    JSValueView(value: result, tools: tools)
+                }
+            }
+            Spacer()
+            if let resultIndex = item.resultIndex {
+                Text("results[\(resultIndex)]")
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundStyle(.secondary)
+                    .onTapGesture {
+                        if let addToCode = self.addToCode {
+                            addToCode("results[\(resultIndex)]")
+                        }
+                    }
+            }
+        }
+        if latest {
+            body
+        } else {
+            body.foregroundStyle(.secondary)
+        }
+    }
+    
+    private var sourceAttributedString: AttributedString {
+        var prompt = AttributedString("> ")
+        prompt.foregroundColor = .secondary
+        
+        let source = item.source
+        
+        return prompt + source
+    }
+}
+
+#Preview {
+    let ctx = JSContext()!
+    let tools = JSTools(context: ctx)
+    ScrollView {
+        HistoryItemView(
+            item: HistoryItem(
+                source: "1+1",
+                logs: [
+                    JSLogMessage(level: .log, message: [
+                        JSValue(object: "hello world", in: ctx),
+                        JSValue(object: [1, 2, 3], in: ctx)
+                    ])
+                ],
+                result: JSValue(double: 1234.5678, in: ctx),
+                resultIndex: 4,
+            ),
+            tools: tools
+        )
+    }
+}
