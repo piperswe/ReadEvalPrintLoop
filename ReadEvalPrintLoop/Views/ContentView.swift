@@ -34,30 +34,44 @@ struct ContentView: View {
                         ).id(item.id)
                     }
                 }
-                TextField(processing ? "Processing..." : "Expression", text: $scriptInput).onSubmit {
-                    let script = scriptInput
-                    if script.trimmingCharacters(in: .whitespacesAndNewlines) != "" {
-                        scriptInput = ""
-                        processing = true
-                        Task {
-                            let _ = await instance.evaluate(source: script)
-                            // add to the dispatch queue to give the UI time to react to the instance being changed
-                            DispatchQueue.main.async {
-                                proxy.scrollTo(instance.lastResultId, anchor: .bottom)
-                                processing = false
-                                fieldFocused = true
-                            }
+                TextEditor(text: $scriptInput)
+                    .onKeyPress(keys: [.return]) { press in
+                        if press.modifiers.contains(.shift) {
+                            onSubmit(proxy: proxy)
+                            return .handled
+                        } else {
+                            return .ignored
                         }
                     }
-                }
+                    .onSubmit { onSubmit(proxy: proxy) }
+//                    .fixedSize(horizontal: true, vertical: false)
                     .focused($fieldFocused)
                     .disabled(processing)
                     .font(.system(.body, design: .monospaced))
+                    .frame(minHeight: 30, maxHeight: 200)
+                    .border(.secondary)
                     .padding(10)
             }
         }
         .onAppear {
             fieldFocused = true
+        }
+    }
+    
+    private func onSubmit(proxy: ScrollViewProxy) {
+        let script = scriptInput
+        if script.trimmingCharacters(in: .whitespacesAndNewlines) != "" {
+            scriptInput = ""
+            processing = true
+            Task {
+                let _ = await instance.evaluate(source: script)
+                // add to the dispatch queue to give the UI time to react to the instance being changed
+                DispatchQueue.main.async {
+                    proxy.scrollTo(instance.lastResultId, anchor: .bottom)
+                    processing = false
+                    fieldFocused = true
+                }
+            }
         }
     }
 }
