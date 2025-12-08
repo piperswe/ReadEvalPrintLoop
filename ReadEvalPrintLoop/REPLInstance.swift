@@ -9,13 +9,13 @@
 //
 
 import Foundation
+import SwiftUI
 import JavaScriptCore
 import HighlightSwift
 
 struct HistoryItem: Identifiable {
     var id: UUID = UUID()
-    var source: AttributedString
-    var sourceStr: String
+    var source: String
     var logs: [JSLogMessage] = []
     var result: JSValue?
     var exception: String?
@@ -32,10 +32,21 @@ func valueString(_ value: JSValue?) -> String {
     }
 }
 
-func highlightJavaScript(_ code: String) async -> AttributedString {
+private func setupHighlight() -> Highlight {
     let highlight = Highlight()
+    Task.detached {
+        // get HLJS loading in the background
+        try await highlight.attributedText("1+1")
+    }
+    return highlight
+}
+
+private let highlight = setupHighlight()
+
+func highlightJavaScript(_ code: String, colorScheme: ColorScheme = .light) async -> AttributedString {
+    let colors = colorScheme == .dark ? HighlightColors.dark(.xcode) : HighlightColors.light(.xcode)
     do {
-        return try await highlight.attributedText(code, language: .javaScript, colors: .dark(.xcode))
+        return try await highlight.attributedText(code, language: .javaScript, colors: colors)
     } catch {
         return AttributedString(stringLiteral: code)
     }
@@ -46,10 +57,23 @@ func displayValue(_ value: JSValue?) async -> AttributedString {
     return await highlightJavaScript(str)
 }
 
+actor JSRunner {
+    private var context: JSContext
+    
+    init(context: JSContext) {
+        self.context = context
+    }
+    
+    func evaluate(script: String) -> JSValue? {
+        return context.evaluateScript(script)
+    }
+}
+
 @Observable
 class REPLInstance {
     var history: [HistoryItem] = []
-    private var context: JSContext!
+    private var runner: JSRunner
+    private var context: JSContext
     private var results: [JSValue?] = []
     private var console: JSLibConsole = JSLibConsole(backend: JSLibConsoleNull())
     let tools: JSTools
@@ -60,6 +84,7 @@ class REPLInstance {
 
     init(context: JSContext!) {
         self.context = context
+        self.runner = JSRunner(context: context)
         tools = JSTools(context: context)
         context.globalObject.setValue(context.globalObject, forProperty: "globalThis")
         context.globalObject.setValue(results, forProperty: "results")
@@ -74,16 +99,16 @@ class REPLInstance {
     }
 
     func evaluate(source: String!) async -> JSValue? {
-        async let highlightedSource = highlightJavaScript(source)
         let consoleBackend = JSLibConsoleStore()
         self.console.backend = consoleBackend
         defer { self.console.backend = JSLibConsoleNull() }
-        let result = context.evaluateScript(source)
+        let result = await Task.detached(name: "JavaScript execution") {
+            return await self.runner.evaluate(script: source)
+        }.value
         if let exception = context.exception {
             context.globalObject.setValue(exception, forProperty: "exception")
             appendHistory(HistoryItem(
-                source: await highlightedSource,
-                sourceStr: source,
+                source: source,
                 logs: consoleBackend.messages,
                 exception: exception.toString()
             ))
@@ -96,8 +121,7 @@ class REPLInstance {
             results.append(result)
             context.globalObject.setValue(results, forProperty: "results")
             appendHistory(HistoryItem(
-                source: await highlightedSource,
-                sourceStr: source,
+                source: source,
                 logs: consoleBackend.messages,
                 result: result,
                 resultIndex: resultIndex

@@ -12,10 +12,21 @@ import SwiftUI
 import JavaScriptCore
 
 struct HistoryItemView: View {
+    @Environment(\.colorScheme) private var colorScheme: ColorScheme
     var item: HistoryItem
     var tools: JSTools
     var addToCode: ((String) -> ())?
-    var latest: Bool = true
+    var latest: Bool
+    
+    @State var highlightedSource: AttributedString
+    
+    init(item: HistoryItem, tools: JSTools, addToCode: ((String) -> Void)? = nil, latest: Bool = true) {
+        self.item = item
+        self.tools = tools
+        self.addToCode = addToCode
+        self.latest = latest
+        self.highlightedSource = AttributedString(item.source)
+    }
     
     var body: some View {
         let body = HStack(alignment: .center) {
@@ -55,6 +66,9 @@ struct HistoryItemView: View {
                     }
             }
         }
+            .task(id: colorScheme) {
+                self.highlightedSource = await highlightJavaScript(item.source, colorScheme: colorScheme)
+            }
         if latest {
             body
         } else {
@@ -65,10 +79,7 @@ struct HistoryItemView: View {
     private var sourceAttributedString: AttributedString {
         var prompt = AttributedString("> ")
         prompt.foregroundColor = .secondary
-        
-        let source = item.source
-        
-        return prompt + source
+        return prompt + highlightedSource
     }
 }
 
@@ -79,7 +90,6 @@ struct HistoryItemView: View {
         HistoryItemView(
             item: HistoryItem(
                 source: "1+1",
-                sourceStr: "1+1",
                 logs: [
                     JSLogMessage(level: .log, message: [
                         JSValue(object: "hello world", in: ctx),

@@ -61,13 +61,12 @@ struct ContentView: View {
                                 scriptInput = ""
                             }
                             .labelStyle(.iconOnly)
-                            Button("Use last", systemImage: "arrow.up") {
-                                if let last = instance.history.last?.sourceStr {
+                            if let last = instance.history.last?.source {
+                                Button("Use last", systemImage: "arrow.up") {
                                     scriptInput = last
                                 }
+                                .labelStyle(.iconOnly)
                             }
-                            .labelStyle(.iconOnly)
-                            .disabled(instance.history.isEmpty)
                         }
                     }
                     #endif
@@ -83,7 +82,11 @@ struct ContentView: View {
                     .focused($fieldFocused)
                     .font(.system(.body, design: .monospaced))
                     .frame(minHeight: 30, maxHeight: 200)
-                    .border(.secondary)
+                    .cornerRadius(4)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(.secondary, lineWidth: 1)
+                    }
                     .padding(10)
             }
         }
