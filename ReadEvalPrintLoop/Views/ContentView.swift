@@ -41,6 +41,9 @@ struct ContentView: View {
             ).id(item.id)
           }
           .padding(10)
+          if processing {
+            ProgressView()
+          }
         }
         TextEditor(text: $scriptInput)
           .autocorrectionDisabled()

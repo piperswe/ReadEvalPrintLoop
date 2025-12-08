@@ -16,28 +16,12 @@ struct HistoryItemView: View {
   var item: HistoryItem
   var tools: JSTools
   var addToCode: ((String) -> Void)?
-  var latest: Bool
-
-  @State var highlightedSource: AttributedString
-
-  init(
-    item: HistoryItem,
-    tools: JSTools,
-    addToCode: ((String) -> Void)? = nil,
-    latest: Bool = true
-  ) {
-    self.item = item
-    self.tools = tools
-    self.addToCode = addToCode
-    self.latest = latest
-    self.highlightedSource = AttributedString(item.source)
-  }
+  var latest: Bool = true
 
   var body: some View {
     let body = HStack(alignment: .center) {
       VStack(alignment: .leading) {
-        Text(sourceAttributedString)
-          .font(.system(.body, design: .monospaced))
+        SyntaxHighlightedTextView(source: item.source, prefix: HistoryItemView.prefix)
         ForEach(item.logs) { log in
           HStack {
             switch log.level {
@@ -75,12 +59,6 @@ struct HistoryItemView: View {
           }
       }
     }
-    .task(id: colorScheme) {
-      self.highlightedSource = await highlightJavaScript(
-        item.source,
-        colorScheme: colorScheme
-      )
-    }
     if latest {
       body
     } else {
@@ -88,11 +66,11 @@ struct HistoryItemView: View {
     }
   }
 
-  private var sourceAttributedString: AttributedString {
+  private static var prefix: AttributedString = {
     var prompt = AttributedString("> ")
     prompt.foregroundColor = .secondary
-    return prompt + highlightedSource
-  }
+    return prompt
+  }()
 }
 
 #Preview {
