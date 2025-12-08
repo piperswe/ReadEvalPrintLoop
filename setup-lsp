@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+set -euxo pipefail
+
+xcode-build-server config -project *.xcodeproj -scheme ReadEvalPrintLoop
