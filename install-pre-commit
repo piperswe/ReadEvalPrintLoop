@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -euxo pipefail
+
+ln -s ../../pre-commit .git/hooks/pre-commit

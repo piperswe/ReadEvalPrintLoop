@@ -8,112 +8,113 @@
 //  All rights reserved.
 //
 
-import SwiftUI
-import SwiftData
 import JavaScriptCore
+import SwiftData
+import SwiftUI
+
 #if os(macOS)
-import SwiftUIIntrospect
+  import SwiftUIIntrospect
 #endif
 
 struct ContentView: View {
-//    @Environment(\.modelContext) private var modelContext
-//    @Query private var items: [Item]
-    
-    var instance: REPLInstance
-    
-    @State private var scriptInput: String = ""
-    @State private var processing: Bool = false
-    @FocusState private var fieldFocused: Bool
+  //    @Environment(\.modelContext) private var modelContext
+  //    @Query private var items: [Item]
 
-    var body: some View {
-        ScrollViewReader { proxy in
-            VStack {
-                ScrollView {
-                    ForEach(instance.history) { item in
-                        HistoryItemView(
-                            item: item,
-                            tools: instance.tools,
-                            addToCode: { x in
-                                scriptInput += x
-                            },
-                            latest: item.id == instance.history.last?.id
-                        ).id(item.id)
-                    }
-                    .padding(10)
-                }
-                TextEditor(text: $scriptInput)
-                    .autocorrectionDisabled()
-                    #if os(macOS)
-                    .introspect(.textEditor, on: .macOS(.v13, .v14, .v15, .v26)) { nsTextView in
-                        nsTextView.isAutomaticQuoteSubstitutionEnabled = false
-                        nsTextView.isAutomaticDashSubstitutionEnabled = false
-                    }
-                    #else
-                    .autocapitalization(.none)
-                    .keyboardType(.asciiCapable)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Button("Run", systemImage: "play.fill") {
-                                onSubmit(proxy: proxy)
-                            }
-                            .labelStyle(.iconOnly)
-                            Button("Clear", systemImage: "clear") {
-                                scriptInput = ""
-                            }
-                            .labelStyle(.iconOnly)
-                            if let last = instance.history.last?.source {
-                                Button("Use last", systemImage: "arrow.up") {
-                                    scriptInput = last
-                                }
-                                .labelStyle(.iconOnly)
-                            }
-                        }
-                    }
-                    #endif
-                    .onKeyPress(keys: [.return]) { press in
-                        if press.modifiers.contains(.shift) {
-                            onSubmit(proxy: proxy)
-                            return .handled
-                        } else {
-                            return .ignored
-                        }
-                    }
-                    .onSubmit { onSubmit(proxy: proxy) }
-                    .focused($fieldFocused)
-                    .font(.system(.body, design: .monospaced))
-                    .frame(minHeight: 30, maxHeight: 200)
-                    .cornerRadius(4)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(.secondary, lineWidth: 1)
-                    }
-                    .padding(10)
+  var instance: REPLInstance
+
+  @State private var scriptInput: String = ""
+  @State private var processing: Bool = false
+  @FocusState private var fieldFocused: Bool
+
+  var body: some View {
+    ScrollViewReader { proxy in
+      VStack {
+        ScrollView {
+          ForEach(instance.history) { item in
+            HistoryItemView(
+              item: item,
+              tools: instance.tools,
+              addToCode: { x in
+                scriptInput += x
+              },
+              latest: item.id == instance.history.last?.id
+            ).id(item.id)
+          }
+          .padding(10)
+        }
+        TextEditor(text: $scriptInput)
+          .autocorrectionDisabled()
+          #if os(macOS)
+            .introspect(.textEditor, on: .macOS(.v13, .v14, .v15, .v26)) { nsTextView in
+              nsTextView.isAutomaticQuoteSubstitutionEnabled = false
+              nsTextView.isAutomaticDashSubstitutionEnabled = false
             }
-        }
-        .onAppear {
-            fieldFocused = true
-        }
-    }
-    
-    private func onSubmit(proxy: ScrollViewProxy) {
-        let script = scriptInput
-        if script.trimmingCharacters(in: .whitespacesAndNewlines) != "" {
-            scriptInput = ""
-            processing = true
-            Task {
-                let _ = await instance.evaluate(source: script)
-                // add to the dispatch queue to give the UI time to react to the instance being changed
-                DispatchQueue.main.async {
-                    proxy.scrollTo(instance.lastResultId, anchor: .bottom)
-                    processing = false
-                    fieldFocused = true
+          #else
+            .autocapitalization(.none)
+            .keyboardType(.asciiCapable)
+            .toolbar {
+              ToolbarItemGroup(placement: .keyboard) {
+                Button("Run", systemImage: "play.fill") {
+                  onSubmit(proxy: proxy)
                 }
+                .labelStyle(.iconOnly)
+                Button("Clear", systemImage: "clear") {
+                  scriptInput = ""
+                }
+                .labelStyle(.iconOnly)
+                if let last = instance.history.last?.source {
+                  Button("Use last", systemImage: "arrow.up") {
+                    scriptInput = last
+                  }
+                  .labelStyle(.iconOnly)
+                }
+              }
             }
-        }
+          #endif
+          .onKeyPress(keys: [.return]) { press in
+            if press.modifiers.contains(.shift) {
+              onSubmit(proxy: proxy)
+              return .handled
+            } else {
+              return .ignored
+            }
+          }
+          .onSubmit { onSubmit(proxy: proxy) }
+          .focused($fieldFocused)
+          .font(.system(.body, design: .monospaced))
+          .frame(minHeight: 30, maxHeight: 200)
+          .cornerRadius(4)
+          .overlay {
+            RoundedRectangle(cornerRadius: 4)
+              .stroke(.secondary, lineWidth: 1)
+          }
+          .padding(10)
+      }
     }
+    .onAppear {
+      fieldFocused = true
+    }
+  }
+
+  private func onSubmit(proxy: ScrollViewProxy) {
+    let script = scriptInput
+    if script.trimmingCharacters(in: .whitespacesAndNewlines) != "" {
+      scriptInput = ""
+      processing = true
+      Task {
+        let _ = await instance.evaluate(source: script)
+        // add to the dispatch queue to give the UI time to react to the instance being changed
+        DispatchQueue.main.async {
+          proxy.scrollTo(instance.lastResultId, anchor: .bottom)
+          processing = false
+          fieldFocused = true
+        }
+      }
+    }
+  }
 }
 
 #Preview {
-    ContentView(instance: REPLInstance())
-//        .modelContainer(for: Item.self, inMemory: true)
+  ContentView(instance: REPLInstance())
+  //        .modelContainer(for: Item.self, inMemory: true)
 }

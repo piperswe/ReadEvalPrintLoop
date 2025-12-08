@@ -9,126 +9,131 @@
 //
 
 import Foundation
-import SwiftUI
-import JavaScriptCore
 import HighlightSwift
+import JavaScriptCore
+import SwiftUI
 
 struct HistoryItem: Identifiable {
-    var id: UUID = UUID()
-    var source: String
-    var logs: [JSLogMessage] = []
-    var result: JSValue?
-    var exception: String?
-    var resultIndex: Int?
+  var id: UUID = UUID()
+  var source: String
+  var logs: [JSLogMessage] = []
+  var result: JSValue?
+  var exception: String?
+  var resultIndex: Int?
 }
 
 func valueString(_ value: JSValue?) -> String {
-    if value?.isUndefined ?? true {
-        return "undefined"
-    } else {
-        let context = value!.context!
-        let json = context.globalObject.forProperty("JSON").invokeMethod("stringify", withArguments: [value as Any])
-        return json!.toString()
-    }
+  if value?.isUndefined ?? true {
+    return "undefined"
+  } else {
+    let context = value!.context!
+    let json = context.globalObject.forProperty("JSON").invokeMethod(
+      "stringify", withArguments: [value as Any])
+    return json!.toString()
+  }
 }
 
 private func setupHighlight() -> Highlight {
-    let highlight = Highlight()
-    Task.detached {
-        // get HLJS loading in the background
-        try await highlight.attributedText("1+1")
-    }
-    return highlight
+  let highlight = Highlight()
+  Task.detached {
+    // get HLJS loading in the background
+    try await highlight.attributedText("1+1")
+  }
+  return highlight
 }
 
 private let highlight = setupHighlight()
 
-func highlightJavaScript(_ code: String, colorScheme: ColorScheme = .light) async -> AttributedString {
-    let colors = colorScheme == .dark ? HighlightColors.dark(.xcode) : HighlightColors.light(.xcode)
-    do {
-        return try await highlight.attributedText(code, language: .javaScript, colors: colors)
-    } catch {
-        return AttributedString(stringLiteral: code)
-    }
+func highlightJavaScript(_ code: String, colorScheme: ColorScheme = .light) async
+  -> AttributedString
+{
+  let colors = colorScheme == .dark ? HighlightColors.dark(.xcode) : HighlightColors.light(.xcode)
+  do {
+    return try await highlight.attributedText(code, language: .javaScript, colors: colors)
+  } catch {
+    return AttributedString(stringLiteral: code)
+  }
 }
 
 func displayValue(_ value: JSValue?) async -> AttributedString {
-    let str = valueString(value)
-    return await highlightJavaScript(str)
+  let str = valueString(value)
+  return await highlightJavaScript(str)
 }
 
 actor JSRunner {
-    private var context: JSContext
-    
-    init(context: JSContext) {
-        self.context = context
-    }
-    
-    func evaluate(script: String) -> JSValue? {
-        return context.evaluateScript(script)
-    }
+  private var context: JSContext
+
+  init(context: JSContext) {
+    self.context = context
+  }
+
+  func evaluate(script: String) -> JSValue? {
+    return context.evaluateScript(script)
+  }
 }
 
 @Observable
 class REPLInstance {
-    var history: [HistoryItem] = []
-    private var runner: JSRunner
-    private var context: JSContext
-    private var results: [JSValue?] = []
-    private var console: JSLibConsole = JSLibConsole(backend: JSLibConsoleNull())
-    let tools: JSTools
+  var history: [HistoryItem] = []
+  private var runner: JSRunner
+  private var context: JSContext
+  private var results: [JSValue?] = []
+  private var console: JSLibConsole = JSLibConsole(backend: JSLibConsoleNull())
+  let tools: JSTools
 
-    convenience init() {
-        self.init(context: JSContext())
-    }
+  convenience init() {
+    self.init(context: JSContext())
+  }
 
-    init(context: JSContext!) {
-        self.context = context
-        self.runner = JSRunner(context: context)
-        tools = JSTools(context: context)
-        context.globalObject.setValue(context.globalObject, forProperty: "globalThis")
-        context.globalObject.setValue(results, forProperty: "results")
-        context.globalObject.setValue(JSValue(undefinedIn: context), forProperty: "exception")
-        context.globalObject.setValue(JSValue(undefinedIn: context), forProperty: "last")
-        console.attach(context: context)
-    }
-    
-    @MainActor
-    func appendHistory(_ item: HistoryItem) {
-        history.append(item)
-    }
+  init(context: JSContext!) {
+    self.context = context
+    self.runner = JSRunner(context: context)
+    tools = JSTools(context: context)
+    context.globalObject.setValue(context.globalObject, forProperty: "globalThis")
+    context.globalObject.setValue(results, forProperty: "results")
+    context.globalObject.setValue(JSValue(undefinedIn: context), forProperty: "exception")
+    context.globalObject.setValue(JSValue(undefinedIn: context), forProperty: "last")
+    console.attach(context: context)
+  }
 
-    func evaluate(source: String!) async -> JSValue? {
-        let consoleBackend = JSLibConsoleStore()
-        self.console.backend = consoleBackend
-        defer { self.console.backend = JSLibConsoleNull() }
-        let result = await Task.detached(name: "JavaScript execution") {
-            return await self.runner.evaluate(script: source)
-        }.value
-        if let exception = context.exception {
-            context.globalObject.setValue(exception, forProperty: "exception")
-            appendHistory(HistoryItem(
-                source: source,
-                logs: consoleBackend.messages,
-                exception: exception.toString()
-            ))
-            context.exception = nil
-            return nil
-        } else {
-            context.globalObject.setValue(result, forProperty: "last")
-            let resultIndex = results.count
-            let result = result ?? JSValue(undefinedIn: context)
-            results.append(result)
-            context.globalObject.setValue(results, forProperty: "results")
-            appendHistory(HistoryItem(
-                source: source,
-                logs: consoleBackend.messages,
-                result: result,
-                resultIndex: resultIndex
-            ))
-            return result
-        }
+  @MainActor
+  func appendHistory(_ item: HistoryItem) {
+    history.append(item)
+  }
+
+  func evaluate(source: String!) async -> JSValue? {
+    let consoleBackend = JSLibConsoleStore()
+    self.console.backend = consoleBackend
+    defer { self.console.backend = JSLibConsoleNull() }
+    let result = await Task.detached(name: "JavaScript execution") {
+      return await self.runner.evaluate(script: source)
+    }.value
+    if let exception = context.exception {
+      context.globalObject.setValue(exception, forProperty: "exception")
+      appendHistory(
+        HistoryItem(
+          source: source,
+          logs: consoleBackend.messages,
+          exception: exception.toString()
+        ))
+      context.exception = nil
+      return nil
+    } else {
+      context.globalObject.setValue(result, forProperty: "last")
+      let resultIndex = results.count
+      let result = result ?? JSValue(undefinedIn: context)
+      results.append(result)
+      context.globalObject.setValue(results, forProperty: "results")
+      appendHistory(
+        HistoryItem(
+          source: source,
+          logs: consoleBackend.messages,
+          result: result,
+          resultIndex: resultIndex
+        ))
+      return result
     }
-    
-    var lastResultId: Int? { return results.isEmpty ? nil : results.count - 1 }
+  }
+
+  var lastResultId: Int? { return results.isEmpty ? nil : results.count - 1 }
 }

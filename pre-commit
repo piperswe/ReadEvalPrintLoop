@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# from https://useyourloaf.com/blog/format-swift-with-a-git-commit-hook/
+
+# Staged (cached) added/copied/modified/renamed files
+git diff --cached --name-only --diff-filter=ACMR | grep '\.swift$' | xargs swift format --in-place --parallel
+
+git add $files
