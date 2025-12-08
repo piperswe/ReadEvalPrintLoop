@@ -42,7 +42,6 @@ struct ContentView: View {
                     .padding(10)
                 }
                 TextEditor(text: $scriptInput)
-                    .autocapitalization(.none)
                     .autocorrectionDisabled()
                     #if os(macOS)
                     .introspect(.textEditor, on: .macOS(.v13, .v14, .v15, .v26)) { nsTextView in
@@ -50,6 +49,7 @@ struct ContentView: View {
                         nsTextView.isAutomaticDashSubstitutionEnabled = false
                     }
                     #else
+                    .autocapitalization(.none)
                     .keyboardType(.asciiCapable)
                     .toolbar {
                         ToolbarItemGroup(placement: .keyboard) {
