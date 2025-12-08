@@ -16,10 +16,6 @@ jobs:
             xcode: "26.1.1"
             ios: "26.1"
             device: iPad (A16)
-          - name: macOS 26.1
-            xcode: "26.1.1"
-            ios: "26.1"
-            device: My Mac
     name: Test (${{ matrix.name }})
     steps:
     - uses: actions/checkout@v6
@@ -29,3 +25,12 @@ jobs:
       run: xcodebuild build -scheme ReadEvalPrintLoop -project ReadEvalPrintLoop.xcodeproj -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=${{ matrix.ios }}' | xcpretty && exit ${PIPESTATUS[0]}
     - name: Run tests
       run: xcodebuild test -scheme ReadEvalPrintLoop -project ReadEvalPrintLoop.xcodeproj -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=${{ matrix.ios }}' | xcpretty && exit ${PIPESTATUS[0]}
+  test-macos:
+    runs-on: macos-26
+    name: Test (macOS)
+    steps:
+    - uses: actions/checkout@v6
+    - name: Build
+      run: xcodebuild build -scheme ReadEvalPrintLoop -project ReadEvalPrintLoop.xcodeproj -destination 'name=My Mac' | xcpretty && exit ${PIPESTATUS[0]}
+    - name: Run tests
+      run: xcodebuild test -scheme ReadEvalPrintLoop -project ReadEvalPrintLoop.xcodeproj -destination 'name=My Mac' | xcpretty && exit ${PIPESTATUS[0]}
