@@ -3,7 +3,7 @@ name: Test
 on: [push]
 
 jobs:
-  test:
+  test-ios:
     runs-on: macos-26
     strategy:
       matrix:
@@ -12,10 +12,6 @@ jobs:
             xcode: "26.1.1"
             ios: "26.1"
             device: iPhone 17 Pro
-          - name: iPadOS 26.1 on iPad (A16)
-            xcode: "26.1.1"
-            ios: "26.1"
-            device: iPad (A16)
     name: Test (${{ matrix.name }})
     steps:
     - uses: actions/checkout@v6
@@ -25,6 +21,24 @@ jobs:
       run: xcodebuild build -scheme ReadEvalPrintLoop -project ReadEvalPrintLoop.xcodeproj -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=${{ matrix.ios }}' | xcpretty && exit ${PIPESTATUS[0]}
     - name: Run tests
       run: xcodebuild test -scheme ReadEvalPrintLoop -project ReadEvalPrintLoop.xcodeproj -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=${{ matrix.ios }}' | xcpretty && exit ${PIPESTATUS[0]}
+  test-ipados:
+    runs-on: macos-26
+    strategy:
+      matrix:
+        include:
+          - name: iPadOS 26.1 on iPad Pro 11-inch (M5)
+            xcode: "26.1.1"
+            ipados: "26.1"
+            device: iPad Pro 11-inch (M5)
+    name: Test (${{ matrix.name }})
+    steps:
+    - uses: actions/checkout@v6
+    - name: Select Xcode
+      run: sudo xcode-select -switch /Applications/Xcode_${{ matrix.xcode }}.app && /usr/bin/xcodebuild -version
+    - name: Build
+      run: xcodebuild build -scheme ReadEvalPrintLoop -project ReadEvalPrintLoop.xcodeproj -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=${{ matrix.ipados }}' | xcpretty && exit ${PIPESTATUS[0]}
+    - name: Run tests
+      run: xcodebuild test -scheme ReadEvalPrintLoop -project ReadEvalPrintLoop.xcodeproj -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=${{ matrix.ipados }}' | xcpretty && exit ${PIPESTATUS[0]}
   test-macos:
     runs-on: macos-26
     name: Test (macOS)
