@@ -1,2 +1,11 @@
 Copyright (c) 2025 Piper McCorkle.
 All rights reserved.
+
+If you want to modify this for your own use, I can't and won't try to stop you.
+Please don't redistribute it though. This source code is public so that its
+users can make tweaks to make the tool work better for them, not so that other
+software and projects can reuse its code.
+
+If a certain bit of code looks interesting and you'd like to use it elsewhere,
+let me know and I might be open to refactoring it into an external free
+library.
