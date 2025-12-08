@@ -18,26 +18,25 @@ class JSLibConsole {
     self.backend = backend
   }
 
-  func attach(context: JSContext) {
-    let console = JSValue(newObjectIn: context)!
-    let log = generateVariadic(context: context, name: "log") { args in
-      let args = toArrayOfValues(value: args)!
-      self.backend.log(JSLogMessage(level: .log, message: args))
-      return JSValue(undefinedIn: context)
-    }
-    console.setValue(log, forProperty: "log")
-    let warn = generateVariadic(context: context, name: "warn") { args in
-      let args = toArrayOfValues(value: args)!
-      self.backend.log(JSLogMessage(level: .warn, message: args))
-      return JSValue(undefinedIn: context)
-    }
-    console.setValue(warn, forProperty: "warn")
-    let error = generateVariadic(context: context, name: "error") { args in
-      let args = toArrayOfValues(value: args)!
-      self.backend.log(JSLogMessage(level: .error, message: args))
-      return JSValue(undefinedIn: context)
-    }
-    console.setValue(error, forProperty: "error")
-    context.globalObject.setValue(console, forProperty: "console")
+  func attach(runtime: JavaScriptRuntime) async {
+    let consoleFields = [
+      "log": await runtime.variadicFunction(name: "log") { args in
+        let args = toArrayOfValues(value: args)!
+        self.backend.log(JSLogMessage(level: .log, message: args))
+        return runtime.undefined
+      },
+      "warn": await runtime.variadicFunction(name: "warn") { args in
+        let args = toArrayOfValues(value: args)!
+        self.backend.log(JSLogMessage(level: .warn, message: args))
+        return runtime.undefined
+      },
+      "error": await runtime.variadicFunction(name: "error") { args in
+        let args = toArrayOfValues(value: args)!
+        self.backend.log(JSLogMessage(level: .error, message: args))
+        return runtime.undefined
+      },
+    ]
+    let console = runtime.object(values: consoleFields)
+    await runtime.setGlobal(name: "console", value: console)
   }
 }

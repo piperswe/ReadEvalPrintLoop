@@ -33,7 +33,7 @@ struct ContentView: View {
           ForEach(instance.history) { item in
             HistoryItemView(
               item: item,
-              tools: instance.tools,
+              runtime: instance.runtime,
               addToCode: { x in
                 scriptInput += x
               },
@@ -96,6 +96,9 @@ struct ContentView: View {
     }
     .onAppear {
       fieldFocused = true
+    }
+    .task {
+      await instance.setupGlobals()
     }
   }
 

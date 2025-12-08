@@ -15,27 +15,17 @@ import SwiftUI
 @Observable
 class REPLInstance {
   var history: [HistoryItem] = []
-  private var runner: JSRunner
-  private var context: JSContext
+  var runtime: JavaScriptRuntime = JavaScriptRuntime()
   private var results: [JSValue?] = []
   private var console: JSLibConsole = JSLibConsole(backend: JSLibConsoleNull())
-  let tools: JSTools
 
-  convenience init() {
-    self.init(context: JSContext())
-  }
-
-  init(context: JSContext!) {
-    self.context = context
-    self.runner = JSRunner(context: context)
-    tools = JSTools(context: context)
-    context.globalObject.setValue(context.globalObject, forProperty: "globalThis")
-    context.globalObject.setValue(results, forProperty: "results")
-    context.globalObject.setValue(JSValue(undefinedIn: context), forProperty: "exception")
-    context.globalObject.setValue(JSValue(undefinedIn: context), forProperty: "last")
-    console.attach(context: context)
-
-    try! loadDefaultLibraries(context: context)
+  func setupGlobals() async {
+    await runtime.setupGlobalThis()
+    await runtime.setGlobal(name: "results", value: results)
+    await runtime.setGlobal(name: "exception", value: runtime.undefined)
+    await runtime.setGlobal(name: "last", value: runtime.undefined)
+    await console.attach(runtime: runtime)
+    try! await loadDefaultLibraries(runtime: runtime)
   }
 
   @MainActor
@@ -47,25 +37,13 @@ class REPLInstance {
     let consoleBackend = JSLibConsoleStore()
     self.console.backend = consoleBackend
     defer { self.console.backend = JSLibConsoleNull() }
-    let result = await Task.detached(name: "JavaScript execution") {
-      return await self.runner.evaluate(script: source)
-    }.value
-    if let exception = context.exception {
-      context.globalObject.setValue(exception, forProperty: "exception")
-      appendHistory(
-        HistoryItem(
-          source: source,
-          logs: consoleBackend.messages,
-          exception: exception.toString()
-        ))
-      context.exception = nil
-      return nil
-    } else {
-      context.globalObject.setValue(result, forProperty: "last")
+    do {
+      let maybeResult = try await runtime.evaluate(script: source)
+      await runtime.setGlobal(name: "last", value: maybeResult)
       let resultIndex = results.count
-      let result = result ?? JSValue(undefinedIn: context)
+      let result = maybeResult ?? runtime.undefined
       results.append(result)
-      context.globalObject.setValue(results, forProperty: "results")
+      await runtime.setGlobal(name: "results", value: results)
       appendHistory(
         HistoryItem(
           source: source,
@@ -74,6 +52,17 @@ class REPLInstance {
           resultIndex: resultIndex
         ))
       return result
+    } catch JavaScriptError.error(let e) {
+      await runtime.setGlobal(name: "exception", value: e)
+      appendHistory(
+        HistoryItem(
+          source: source,
+          logs: consoleBackend.messages,
+          exception: e
+        ))
+      return nil
+    } catch let e {
+      fatalError(e.localizedDescription)
     }
   }
 

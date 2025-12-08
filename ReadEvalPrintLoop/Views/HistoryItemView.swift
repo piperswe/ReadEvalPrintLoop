@@ -14,7 +14,7 @@ import SwiftUI
 struct HistoryItemView: View {
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
   var item: HistoryItem
-  var tools: JSTools
+  var runtime: JavaScriptRuntime
   var addToCode: ((String) -> Void)?
   var latest: Bool = true
 
@@ -35,7 +35,7 @@ struct HistoryItemView: View {
             ForEach(log.message, id: \.hash) { message in
               JSValueView(
                 value: message,
-                tools: tools,
+                runtime: runtime,
                 logMessage: true
               )
             }
@@ -44,7 +44,7 @@ struct HistoryItemView: View {
         if let exception = item.exception {
           Text(exception).foregroundColor(.red)
         } else if let result = item.result {
-          JSValueView(value: result, tools: tools)
+          JSValueView(value: result, runtime: runtime)
         }
       }
       Spacer()
@@ -74,8 +74,7 @@ struct HistoryItemView: View {
 }
 
 #Preview {
-  let ctx = JSContext()!
-  let tools = JSTools(context: ctx)
+  let runtime = JavaScriptRuntime()
   ScrollView {
     HistoryItemView(
       item: HistoryItem(
@@ -84,15 +83,15 @@ struct HistoryItemView: View {
           JSLogMessage(
             level: .log,
             message: [
-              JSValue(object: "hello world", in: ctx),
-              JSValue(object: [1, 2, 3], in: ctx),
+              runtime.string("hello world"),
+              runtime.array(values: [1, 2, 3]),
             ]
           )
         ],
-        result: JSValue(double: 1234.5678, in: ctx),
+        result: runtime.number(1234.5678),
         resultIndex: 4,
       ),
-      tools: tools
+      runtime: runtime
     )
   }
 }

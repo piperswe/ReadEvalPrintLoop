@@ -255,11 +255,9 @@ let thirdPartyLibraries: [ThirdPartyLibrary] = [
   ),
 ]
 
-func loadDefaultLibraries(context: JSContext) throws {
+func loadDefaultLibraries(runtime: JavaScriptRuntime) async throws {
   for lib in thirdPartyLibraries {
-    context.evaluateScript(try String(contentsOf: lib.sourceFile, encoding: .utf8))
-    if let exception = context.exception {
-      print("oops, got exception when loading ", lib.name, ": ", exception.toString() ?? "")
-    }
+    let _ = try await runtime.evaluate(
+      script: try String(contentsOf: lib.sourceFile, encoding: .utf8))
   }
 }

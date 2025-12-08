@@ -26,7 +26,8 @@ enum ViewableJSValue {
 
   case loading
 
-  nonisolated static func from(value: JSValue, tools: JSTools) -> ViewableJSValue {
+  nonisolated static func from(value: JSValue, runtime: JavaScriptRuntime) async -> ViewableJSValue
+  {
     if value.isUndefined {
       return .undefined
     } else if value.isNull {
@@ -48,11 +49,11 @@ enum ViewableJSValue {
       return .date(value: Date(timeIntervalSince1970: TimeInterval(value.toInt64())))
     } else if value.isSymbol {
       return .symbol
-    } else if tools.typeof(value) == "function" {
+    } else if await runtime.typeof(value) == "function" {
       let name = value.forProperty("name")?.toString()
       return .function(name: name)
     } else if value.isObject {
-      let keys = tools.objectKeys(value)
+      let keys = await runtime.objectKeys(value)
       var values: [String: JSValue] = [:]
       for k in keys {
         values[k] = value.forProperty(k)
@@ -63,7 +64,7 @@ enum ViewableJSValue {
     }
   }
 
-  func body(tools: JSTools) -> some View {
+  func body(runtime: JavaScriptRuntime) -> some View {
     Group {
       switch self {
       case .undefined:
@@ -77,7 +78,7 @@ enum ViewableJSValue {
       case .string(let value):
         JSStringView(value: value)
       case .array(let values):
-        JSArrayView(value: values, tools: tools)
+        JSArrayView(value: values, runtime: runtime)
       case .date(let value):
         JSDateView(value: value)
       case .symbol:
@@ -85,7 +86,7 @@ enum ViewableJSValue {
       case .function(let name):
         JSFunctionView(name: name)
       case .object(let values):
-        JSObjectView(values: values, tools: tools)
+        JSObjectView(values: values, runtime: runtime)
       case .unknown(let string):
         JSUnknownView(string: string)
       case .loading:

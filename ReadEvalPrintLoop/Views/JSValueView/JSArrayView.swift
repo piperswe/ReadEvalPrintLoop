@@ -13,7 +13,7 @@ import SwiftUI
 
 struct JSArrayView: JSValueViewBase {
   var value: [JSValue]
-  var tools: JSTools
+  var runtime: JavaScriptRuntime
   @State var expanded: Bool = false
   var body: some View {
     HStack(alignment: .top) {
@@ -40,7 +40,7 @@ struct JSArrayView: JSValueViewBase {
             let item = value[i]
             HStack(alignment: .top) {
               Text("[\(i)]:").font(.system(size: 12).monospaced())
-              JSValueView(value: item, tools: tools)
+              JSValueView(value: item, runtime: runtime)
             }
           }.padding(.leading, 10)
         }

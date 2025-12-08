@@ -13,13 +13,13 @@ import SwiftUI
 
 struct JSObjectView: JSValueViewBase {
   var values: [String: JSValue]
-  var tools: JSTools
+  var runtime: JavaScriptRuntime
   @State var expanded: Bool = false
   private var keys: [String]
 
-  init(values: [String: JSValue], tools: JSTools) {
+  init(values: [String: JSValue], runtime: JavaScriptRuntime) {
     self.values = values
-    self.tools = tools
+    self.runtime = runtime
     keys = values.keys.sorted()
   }
 
@@ -48,7 +48,7 @@ struct JSObjectView: JSValueViewBase {
             if let item = values[key] {
               HStack(alignment: .top) {
                 Text("\(key):").font(.system(size: 12).monospaced())
-                JSValueView(value: item, tools: tools)
+                JSValueView(value: item, runtime: runtime)
               }
             }
           }.padding(.leading, 10)
