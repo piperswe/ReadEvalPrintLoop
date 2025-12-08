@@ -45,6 +45,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		86815A012EE66EC700AC7DA4 /* .github */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = .github;
+			sourceTree = "<group>";
+		};
 		869B6C742EE254610088CB7E /* ReadEvalPrintLoop */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -95,6 +100,7 @@
 		869B6C692EE254610088CB7E = {
 			isa = PBXGroup;
 			children = (
+				86815A012EE66EC700AC7DA4 /* .github */,
 				869B6C742EE254610088CB7E /* ReadEvalPrintLoop */,
 				869B6C862EE254620088CB7E /* ReadEvalPrintLoopTests */,
 				869B6C902EE254620088CB7E /* ReadEvalPrintLoopUITests */,
@@ -128,6 +134,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				86815A012EE66EC700AC7DA4 /* .github */,
 				869B6C742EE254610088CB7E /* ReadEvalPrintLoop */,
 			);
 			name = ReadEvalPrintLoop;
