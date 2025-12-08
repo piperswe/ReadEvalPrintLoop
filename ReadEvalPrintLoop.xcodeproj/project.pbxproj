@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		86815A002EE66A4200AC7DA4 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 868159FF2EE66A4200AC7DA4 /* SwiftUIIntrospect */; };
 		869B4B712EE2788300FF118A /* HighlightSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 869B4B702EE2788300FF118A /* HighlightSwift */; };
 /* End PBXBuildFile section */
 
@@ -70,6 +71,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				869B4B712EE2788300FF118A /* HighlightSwift in Frameworks */,
+				86815A002EE66A4200AC7DA4 /* SwiftUIIntrospect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +133,7 @@
 			name = ReadEvalPrintLoop;
 			packageProductDependencies = (
 				869B4B702EE2788300FF118A /* HighlightSwift */,
+				868159FF2EE66A4200AC7DA4 /* SwiftUIIntrospect */,
 			);
 			productName = ReadEvalPrintLoop;
 			productReference = 869B6C722EE254610088CB7E /* ReadEvalPrintLoop.app */;
@@ -216,6 +219,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				869B4B6F2EE2788300FF118A /* XCRemoteSwiftPackageReference "highlightswift" */,
+				868159FE2EE66A4200AC7DA4 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 869B6C732EE254610088CB7E /* Products */;
@@ -631,6 +635,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		868159FE2EE66A4200AC7DA4 /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/swiftui-introspect";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 26.0.0;
+			};
+		};
 		869B4B6F2EE2788300FF118A /* XCRemoteSwiftPackageReference "highlightswift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/appstefan/highlightswift";
@@ -642,6 +654,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		868159FF2EE66A4200AC7DA4 /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 868159FE2EE66A4200AC7DA4 /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
+		};
 		869B4B702EE2788300FF118A /* HighlightSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 869B4B6F2EE2788300FF118A /* XCRemoteSwiftPackageReference "highlightswift" */;

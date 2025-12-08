@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import JavaScriptCore
+import SwiftUIIntrospect
 
 struct ContentView: View {
 //    @Environment(\.modelContext) private var modelContext
@@ -35,6 +36,10 @@ struct ContentView: View {
                     }
                 }
                 TextEditor(text: $scriptInput)
+                    .introspect(.textEditor, on: .macOS(.v13, .v14, .v15, .v26)) { nsTextView in
+                        nsTextView.isAutomaticQuoteSubstitutionEnabled = false
+                        nsTextView.isAutomaticDashSubstitutionEnabled = false
+                    }
                     .onKeyPress(keys: [.return]) { press in
                         if press.modifiers.contains(.shift) {
                             onSubmit(proxy: proxy)
