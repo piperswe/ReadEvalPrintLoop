@@ -20,6 +20,20 @@ func toArrayOfValues(value: JSValue) -> [JSValue]? {
   return (0..<len).map { i in value.atIndex(Int(i)) }
 }
 
+func generateVariadic(
+  context: JSContext, name: String, f: @convention(block) @escaping (JSValue) -> JSValue
+) -> JSValue {
+  let generator = context.evaluateScript("f => function \(name)(...args) { return f(args); }")!
+  if context.exception != nil {
+    fatalError("exception evaluating generator: \(context.exception.toString()!)")
+  }
+  let generated = generator.call(withArguments: [f])!
+  if context.exception != nil {
+    fatalError("exception calling generator: \(context.exception.toString()!)")
+  }
+  return generated
+}
+
 class JSTools {
   var context: JSContext
 

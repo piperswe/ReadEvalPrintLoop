@@ -11,50 +11,6 @@
 import Foundation
 import JavaScriptCore
 
-func generateVariadic(
-  context: JSContext, name: String, f: @convention(block) @escaping (JSValue) -> JSValue
-) -> JSValue {
-  let generator = context.evaluateScript("f => function \(name)(...args) { return f(args); }")!
-  if context.exception != nil {
-    fatalError("exception evaluating generator: \(context.exception.toString()!)")
-  }
-  let generated = generator.call(withArguments: [f])!
-  if context.exception != nil {
-    fatalError("exception calling generator: \(context.exception.toString()!)")
-  }
-  return generated
-}
-
-enum JSLogLevel {
-  case log
-  case warn
-  case error
-}
-
-struct JSLogMessage: Identifiable {
-  var id: UUID = UUID()
-  var level: JSLogLevel
-  var message: [JSValue]
-}
-
-protocol JSLibConsoleBackend {
-  func log(_ message: JSLogMessage)
-}
-
-class JSLibConsoleStore: JSLibConsoleBackend {
-  var messages: [JSLogMessage] = []
-
-  func log(_ message: JSLogMessage) {
-    messages.append(message)
-  }
-}
-
-class JSLibConsoleNull: JSLibConsoleBackend {
-  func log(_ message: JSLogMessage) {
-    let _ = message
-  }
-}
-
 class JSLibConsole {
   var backend: JSLibConsoleBackend
 

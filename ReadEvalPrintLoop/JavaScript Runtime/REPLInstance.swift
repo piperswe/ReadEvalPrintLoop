@@ -9,68 +9,8 @@
 //
 
 import Foundation
-import HighlightSwift
 import JavaScriptCore
 import SwiftUI
-
-struct HistoryItem: Identifiable {
-  var id: UUID = UUID()
-  var source: String
-  var logs: [JSLogMessage] = []
-  var result: JSValue?
-  var exception: String?
-  var resultIndex: Int?
-}
-
-func valueString(_ value: JSValue?) -> String {
-  if value?.isUndefined ?? true {
-    return "undefined"
-  } else {
-    let context = value!.context!
-    let json = context.globalObject.forProperty("JSON").invokeMethod(
-      "stringify", withArguments: [value as Any])
-    return json!.toString()
-  }
-}
-
-private func setupHighlight() -> Highlight {
-  let highlight = Highlight()
-  Task.detached {
-    // get HLJS loading in the background
-    try await highlight.attributedText("1+1")
-  }
-  return highlight
-}
-
-private let highlight = setupHighlight()
-
-func highlightJavaScript(_ code: String, colorScheme: ColorScheme = .light) async
-  -> AttributedString
-{
-  let colors = colorScheme == .dark ? HighlightColors.dark(.xcode) : HighlightColors.light(.xcode)
-  do {
-    return try await highlight.attributedText(code, language: .javaScript, colors: colors)
-  } catch {
-    return AttributedString(stringLiteral: code)
-  }
-}
-
-func displayValue(_ value: JSValue?) async -> AttributedString {
-  let str = valueString(value)
-  return await highlightJavaScript(str)
-}
-
-actor JSRunner {
-  private var context: JSContext
-
-  init(context: JSContext) {
-    self.context = context
-  }
-
-  func evaluate(script: String) -> JSValue? {
-    return context.evaluateScript(script)
-  }
-}
 
 @Observable
 class REPLInstance {
