@@ -46,6 +46,10 @@ struct AboutView: View {
             return "your car...?"
         case .vision:
             return "Apple Vision"
+        case .unspecified:
+            fallthrough
+        @unknown default:
+            return "this device"
         }
         #endif
     }

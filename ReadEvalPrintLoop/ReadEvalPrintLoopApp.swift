@@ -31,6 +31,7 @@ struct ReadEvalPrintLoopApp: App {
         WindowGroup {
             ContentView(instance: instance)
         }
+        #if os(macOS)
         .commands {
             CommandGroup(replacing: CommandGroupPlacement.appInfo) {
                 Button {
@@ -40,7 +41,9 @@ struct ReadEvalPrintLoopApp: App {
                 }
             }
         }
+        #endif
         
+        #if os(macOS)
         Window("About ReadEvalPrintLoop", id: "about") {
             AboutView()
                 .windowResizeBehavior(.disabled)
@@ -49,5 +52,6 @@ struct ReadEvalPrintLoopApp: App {
             .defaultSize(width: 400, height: 400)
             .windowResizability(.contentSize)
 //        .modelContainer(sharedModelContainer)
+        #endif
     }
 }
