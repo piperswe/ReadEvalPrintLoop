@@ -23,7 +23,14 @@ struct JSValueView: View {
       viewable.body(tools: tools)
     }
     .task {
-      viewable = ViewableJSValue.from(value: value, tools: tools)
+      let value = value
+      let tools = tools
+      viewable = await Task.detached(
+        name: "rendering JavaScript value",
+        priority: .userInitiated
+      ) {
+        return ViewableJSValue.from(value: value, tools: tools)
+      }.value
     }
   }
 }

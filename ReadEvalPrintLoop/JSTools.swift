@@ -48,11 +48,11 @@ class JSTools {
     jsTypeof = context.evaluateScript("x => typeof x")
   }
 
-  func objectKeys(_ obj: JSValue) -> [String] {
+  nonisolated func objectKeys(_ obj: JSValue) -> [String] {
     return jsObjectKeys.call(withArguments: [obj])!.toArray()! as! [String]
   }
 
-  func typeof(_ val: JSValue) -> String {
+  nonisolated func typeof(_ val: JSValue) -> String {
     return jsTypeof.call(withArguments: [val]).toString()
   }
 }

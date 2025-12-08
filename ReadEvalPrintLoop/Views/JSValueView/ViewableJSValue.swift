@@ -26,7 +26,7 @@ enum ViewableJSValue {
 
   case loading
 
-  static func from(value: JSValue, tools: JSTools) -> ViewableJSValue {
+  nonisolated static func from(value: JSValue, tools: JSTools) -> ViewableJSValue {
     if value.isUndefined {
       return .undefined
     } else if value.isNull {
