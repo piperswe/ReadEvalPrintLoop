@@ -23,10 +23,12 @@ private func setupHighlight() -> Highlight {
 
 private let highlight = setupHighlight()
 
-func highlightJavaScript(_ code: String, colorScheme: ColorScheme = .light) async
+func highlightJavaScript(
+  _ code: String, colorScheme: ColorScheme = .light, theme: HighlightTheme = .xcode
+) async
   -> AttributedString
 {
-  let colors = colorScheme == .dark ? HighlightColors.dark(.xcode) : HighlightColors.light(.xcode)
+  let colors = colorScheme == .dark ? HighlightColors.dark(theme) : HighlightColors.light(theme)
   do {
     return try await highlight.attributedText(code, language: .javaScript, colors: colors)
   } catch {
