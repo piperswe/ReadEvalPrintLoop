@@ -39,12 +39,36 @@ struct ContentView: View {
                             latest: item.id == instance.history.last?.id
                         ).id(item.id)
                     }
+                    .padding(10)
                 }
                 TextEditor(text: $scriptInput)
+                    .autocapitalization(.none)
+                    .autocorrectionDisabled()
                     #if os(macOS)
                     .introspect(.textEditor, on: .macOS(.v13, .v14, .v15, .v26)) { nsTextView in
                         nsTextView.isAutomaticQuoteSubstitutionEnabled = false
                         nsTextView.isAutomaticDashSubstitutionEnabled = false
+                    }
+                    #else
+                    .keyboardType(.asciiCapable)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Button("Run", systemImage: "play.fill") {
+                                onSubmit(proxy: proxy)
+                            }
+                            .labelStyle(.iconOnly)
+                            Button("Clear", systemImage: "clear") {
+                                scriptInput = ""
+                            }
+                            .labelStyle(.iconOnly)
+                            Button("Use last", systemImage: "arrow.up") {
+                                if let last = instance.history.last?.sourceStr {
+                                    scriptInput = last
+                                }
+                            }
+                            .labelStyle(.iconOnly)
+                            .disabled(instance.history.isEmpty)
+                        }
                     }
                     #endif
                     .onKeyPress(keys: [.return]) { press in
@@ -56,9 +80,7 @@ struct ContentView: View {
                         }
                     }
                     .onSubmit { onSubmit(proxy: proxy) }
-//                    .fixedSize(horizontal: true, vertical: false)
                     .focused($fieldFocused)
-                    .disabled(processing)
                     .font(.system(.body, design: .monospaced))
                     .frame(minHeight: 30, maxHeight: 200)
                     .border(.secondary)

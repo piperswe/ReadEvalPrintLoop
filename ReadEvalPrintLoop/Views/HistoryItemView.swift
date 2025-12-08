@@ -79,6 +79,7 @@ struct HistoryItemView: View {
         HistoryItemView(
             item: HistoryItem(
                 source: "1+1",
+                sourceStr: "1+1",
                 logs: [
                     JSLogMessage(level: .log, message: [
                         JSValue(object: "hello world", in: ctx),

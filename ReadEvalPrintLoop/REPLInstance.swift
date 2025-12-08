@@ -15,6 +15,7 @@ import HighlightSwift
 struct HistoryItem: Identifiable {
     var id: UUID = UUID()
     var source: AttributedString
+    var sourceStr: String
     var logs: [JSLogMessage] = []
     var result: JSValue?
     var exception: String?
@@ -82,6 +83,7 @@ class REPLInstance {
             context.globalObject.setValue(exception, forProperty: "exception")
             appendHistory(HistoryItem(
                 source: await highlightedSource,
+                sourceStr: source,
                 logs: consoleBackend.messages,
                 exception: exception.toString()
             ))
@@ -95,6 +97,7 @@ class REPLInstance {
             context.globalObject.setValue(results, forProperty: "results")
             appendHistory(HistoryItem(
                 source: await highlightedSource,
+                sourceStr: source,
                 logs: consoleBackend.messages,
                 result: result,
                 resultIndex: resultIndex
