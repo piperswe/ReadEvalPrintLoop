@@ -34,6 +34,8 @@ class REPLInstance {
     context.globalObject.setValue(JSValue(undefinedIn: context), forProperty: "exception")
     context.globalObject.setValue(JSValue(undefinedIn: context), forProperty: "last")
     console.attach(context: context)
+
+    try! loadDefaultLibraries(context: context)
   }
 
   @MainActor
