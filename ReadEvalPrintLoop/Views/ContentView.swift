@@ -4,6 +4,9 @@
 //
 //  Created by Piper McCorkle on 12/4/25.
 //
+//  Copyright (c) 2025 Piper McCorkle.
+//  All rights reserved.
+//
 
 import SwiftUI
 import SwiftData

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		86815A002EE66A4200AC7DA4 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 868159FF2EE66A4200AC7DA4 /* SwiftUIIntrospect */; };
+		86815A2B2EE6766E00AC7DA4 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 86815A2A2EE6766D00AC7DA4 /* LICENSE */; };
 		869B4B712EE2788300FF118A /* HighlightSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 869B4B702EE2788300FF118A /* HighlightSwift */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		86815A2A2EE6766D00AC7DA4 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		869B6C722EE254610088CB7E /* ReadEvalPrintLoop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReadEvalPrintLoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		869B6C832EE254620088CB7E /* ReadEvalPrintLoopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReadEvalPrintLoopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		869B6C8D2EE254620088CB7E /* ReadEvalPrintLoopUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReadEvalPrintLoopUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,6 +102,7 @@
 		869B6C692EE254610088CB7E = {
 			isa = PBXGroup;
 			children = (
+				86815A2A2EE6766D00AC7DA4 /* LICENSE */,
 				86815A012EE66EC700AC7DA4 /* .github */,
 				869B6C742EE254610088CB7E /* ReadEvalPrintLoop */,
 				869B6C862EE254620088CB7E /* ReadEvalPrintLoopTests */,
@@ -245,6 +248,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86815A2B2EE6766E00AC7DA4 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
