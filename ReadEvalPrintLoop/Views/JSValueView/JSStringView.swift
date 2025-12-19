@@ -20,7 +20,7 @@ import SwiftUI
 struct JSStringView: JSValueViewBase {
   var value: String
   var logMessage: Bool = false
-  @State var showToast: Bool = false
+  @Environment(ToastState.self) private var toastState
   var body: some View {
     HStack(alignment: .top) {
       if !logMessage {
@@ -32,15 +32,10 @@ struct JSStringView: JSValueViewBase {
           let pasteboard = NSPasteboard.general
           pasteboard.setString(value, forType: .string)
         #else
-          let pasteboard = UIPasteboard.general
-          pasteboard.clearContents()
-          pasteboard.writeObjects([value as NSString])
+          UIPasteboard.general.string = value
         #endif
-        showToast = true
+        toastState.showCopied = true
       }.controlSize(.mini)
-    }
-    .toast(isPresenting: $showToast) {
-      AlertToast(displayMode: .hud, type: .regular, title: "Copied!")
     }
   }
 }

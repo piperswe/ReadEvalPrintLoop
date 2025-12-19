@@ -8,6 +8,7 @@
 //  All rights reserved.
 //
 
+import AlertToast
 import JavaScriptCore
 import SwiftData
 import SwiftUI
@@ -25,6 +26,7 @@ struct ContentView: View {
   @State private var scriptInput: String = ""
   @State private var processing: Bool = false
   @FocusState private var fieldFocused: Bool
+  @State private var toastState = ToastState()
 
   var body: some View {
     ScrollViewReader { proxy in
@@ -99,6 +101,10 @@ struct ContentView: View {
     }
     .task {
       await instance.setupGlobals()
+    }
+    .environment(toastState)
+    .toast(isPresenting: $toastState.showCopied) {
+      AlertToast(displayMode: .hud, type: .regular, title: "Copied!")
     }
   }
 
