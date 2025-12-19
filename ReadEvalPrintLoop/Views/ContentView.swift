@@ -27,74 +27,92 @@ struct ContentView: View {
   @State private var processing: Bool = false
   @FocusState private var fieldFocused: Bool
   @State private var toastState = ToastState()
+  @State private var showAbout: Bool = false
 
   var body: some View {
-    ScrollViewReader { proxy in
-      VStack {
-        ScrollView {
-          ForEach(instance.history) { item in
-            HistoryItemView(
-              item: item,
-              runtime: instance.runtime,
-              addToCode: { x in
-                scriptInput += x
-              },
-              latest: item.id == instance.history.last?.id
-            ).id(item.id)
-          }
-          .padding(10)
-          if processing {
-            ProgressView()
-          }
-        }
-        TextEditor(text: $scriptInput)
-          .autocorrectionDisabled()
-          #if os(macOS)
-            .introspect(.textEditor, on: .macOS(.v13, .v14, .v15, .v26)) { nsTextView in
-              nsTextView.isAutomaticQuoteSubstitutionEnabled = false
-              nsTextView.isAutomaticDashSubstitutionEnabled = false
+    NavigationStack {
+      ScrollViewReader { proxy in
+        VStack {
+          ScrollView {
+            ForEach(instance.history) { item in
+              HistoryItemView(
+                item: item,
+                runtime: instance.runtime,
+                addToCode: { x in
+                  scriptInput += x
+                },
+                latest: item.id == instance.history.last?.id
+              ).id(item.id)
             }
-          #else
-            .autocapitalization(.none)
-            .keyboardType(.asciiCapable)
-            .toolbar {
-              ToolbarItemGroup(placement: .keyboard) {
-                Button("Run", systemImage: "play.fill") {
-                  onSubmit(proxy: proxy)
-                }
-                .labelStyle(.iconOnly)
-                Button("Clear", systemImage: "clear") {
-                  scriptInput = ""
-                }
-                .labelStyle(.iconOnly)
-                if let last = instance.history.last?.source {
-                  Button("Use last", systemImage: "arrow.up") {
-                    scriptInput = last
+            .padding(10)
+            if processing {
+              ProgressView()
+            }
+          }
+          TextEditor(text: $scriptInput)
+            .autocorrectionDisabled()
+            #if os(macOS)
+              .introspect(.textEditor, on: .macOS(.v13, .v14, .v15, .v26)) { nsTextView in
+                nsTextView.isAutomaticQuoteSubstitutionEnabled = false
+                nsTextView.isAutomaticDashSubstitutionEnabled = false
+              }
+            #else
+              .autocapitalization(.none)
+              .keyboardType(.asciiCapable)
+              .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                  Button("Run", systemImage: "play.fill") {
+                    onSubmit(proxy: proxy)
                   }
                   .labelStyle(.iconOnly)
+                  Button("Clear", systemImage: "clear") {
+                    scriptInput = ""
+                  }
+                  .labelStyle(.iconOnly)
+                  if let last = instance.history.last?.source {
+                    Button("Use last", systemImage: "arrow.up") {
+                      scriptInput = last
+                    }
+                    .labelStyle(.iconOnly)
+                  }
                 }
               }
+            #endif
+            .onKeyPress(keys: [.return]) { press in
+              if press.modifiers.contains(.shift) {
+                onSubmit(proxy: proxy)
+                return .handled
+              } else {
+                return .ignored
+              }
             }
-          #endif
-          .onKeyPress(keys: [.return]) { press in
-            if press.modifiers.contains(.shift) {
-              onSubmit(proxy: proxy)
-              return .handled
-            } else {
-              return .ignored
+            .onSubmit { onSubmit(proxy: proxy) }
+            .focused($fieldFocused)
+            .font(.system(.body, design: .monospaced))
+            .frame(minHeight: 30, maxHeight: 200)
+            .cornerRadius(4)
+            .overlay {
+              RoundedRectangle(cornerRadius: 4)
+                .stroke(.secondary, lineWidth: 1)
             }
-          }
-          .onSubmit { onSubmit(proxy: proxy) }
-          .focused($fieldFocused)
-          .font(.system(.body, design: .monospaced))
-          .frame(minHeight: 30, maxHeight: 200)
-          .cornerRadius(4)
-          .overlay {
-            RoundedRectangle(cornerRadius: 4)
-              .stroke(.secondary, lineWidth: 1)
-          }
-          .padding(10)
+            .padding(10)
+        }
       }
+      .navigationDestination(isPresented: $showAbout) {
+        AboutView()
+          .navigationTitle("About")
+          .navigationBarTitleDisplayMode(.inline)
+      }
+      .navigationTitle("ReadEvalPrintLoop")
+      .navigationSubtitle("JavaScript")
+      .navigationBarTitleDisplayMode(.inline)
+      #if !os(macOS)
+        .toolbar {
+          Button("About") {
+            showAbout = true
+          }
+        }
+      #endif
     }
     .onAppear {
       fieldFocused = true
