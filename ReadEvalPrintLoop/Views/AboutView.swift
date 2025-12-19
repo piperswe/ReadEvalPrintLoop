@@ -79,9 +79,21 @@ struct AboutView: View {
         destination: developerWebsite
       )
       .foregroundStyle(Color.accentColor)
+      ScrollView {
+        VStack(alignment: .leading, spacing: 6) {
+          Text(
+            try! String(
+              contentsOf: Bundle.main.url(forResource: "CREDITS", withExtension: "txt")!,
+              encoding: .utf8))
+          ForEach(thirdPartyLibraries) { lib in
+            Text("Contains \(lib.name) \(lib.version).")
+            Text(lib.license)
+          }
+        }
+      }
     }
     .padding()
-    .frame(minWidth: 400, minHeight: 260)
+    .frame(minWidth: 400, minHeight: 600)
   }
 }
 

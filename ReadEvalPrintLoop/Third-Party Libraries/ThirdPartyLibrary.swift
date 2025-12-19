@@ -11,11 +11,13 @@
 import Foundation
 import JavaScriptCore
 
-struct ThirdPartyLibrary {
+struct ThirdPartyLibrary: Identifiable {
   var name: String
   var version: String
   var license: String
   var sourceFile: URL
+
+  var id: String { return "\(name)-\(version)" }
 }
 
 let thirdPartyLibraries: [ThirdPartyLibrary] = [
